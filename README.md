@@ -50,3 +50,11 @@ venv-off
 ```
 
 Por padrão, os helpers trabalham com `.venv` no diretório atual.
+Ao entrar em um diretório que tenha `.venv` (ou em um subdiretório dele), o ambiente é ativado automaticamente.
+Ao sair dele, o ambiente autoativado é desativado.
+
+Se quiser desligar esse comportamento:
+
+```zsh
+export WORKSTATION_AUTO_VENV=0
+```
