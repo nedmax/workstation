@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+backup_root="$HOME/.config/workstation/backups"
+timestamp="$(date +%Y%m%d-%H%M%S)"
+backup_dir="$backup_root/$timestamp"
+
+mkdir -p "$backup_dir"
+mkdir -p "$repo_root/zsh/env/private"
+
+link_file() {
+  local source_path="$1"
+  local target_path="$2"
+  local backup_path="$backup_dir/$(basename "$target_path")"
+
+  if [[ -L "$target_path" ]] && [[ "$(readlink "$target_path")" == "$source_path" ]]; then
+    printf 'ok    %s already points to %s\n' "$target_path" "$source_path"
+    return
+  fi
+
+  if [[ -e "$target_path" ]] || [[ -L "$target_path" ]]; then
+    mv "$target_path" "$backup_path"
+    printf 'backup %s -> %s\n' "$target_path" "$backup_path"
+  fi
+
+  ln -s "$source_path" "$target_path"
+  printf 'link  %s -> %s\n' "$target_path" "$source_path"
+}
+
+link_file "$repo_root/home/.zshenv" "$HOME/.zshenv"
+link_file "$repo_root/home/.zprofile" "$HOME/.zprofile"
+link_file "$repo_root/home/.zshrc" "$HOME/.zshrc"
+
+printf '\nInstalled. Open a new shell or run: exec zsh -l\n'

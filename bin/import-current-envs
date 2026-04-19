@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source_file="${1:-$HOME/.zshrc}"
+target_dir="$repo_root/zsh/env/private"
+target_file="$target_dir/00-imported-from-home.zsh"
+
+mkdir -p "$target_dir"
+
+if [[ ! -f "$source_file" ]]; then
+  echo "Arquivo não encontrado: $source_file" >&2
+  exit 1
+fi
+
+awk '
+  BEGIN {
+    print "# Imported from " source_file
+    print "# Review and split this into shared/projects over time."
+    print ""
+  }
+  /^export[[:space:]]+/ {
+    if ($0 ~ /^export PATH=/) next
+    if ($0 ~ /^export ZSH=/) next
+    if ($0 ~ /^export WORKON_HOME=/) next
+    if ($0 ~ /^export VIRTUALENVWRAPPER_/) next
+    print
+  }
+' source_file="$source_file" "$source_file" > "$target_file"
+
+export_count="$(grep -c '^export ' "$target_file" || true)"
+printf 'Imported %s export(s) into %s\n' "$export_count" "$target_file"

@@ -1,0 +1,7 @@
+export WORKSTATION_ZSH_DIR="${WORKSTATION_HOME}/zsh"
+export WORKSTATION_ENV_DIR="${WORKSTATION_ZSH_DIR}/env"
+
+source "${WORKSTATION_ZSH_DIR}/lib/zshenv-helpers.zsh"
+
+source_zsh_dir "${WORKSTATION_ENV_DIR}"
+source_zsh_dir "${WORKSTATION_ENV_DIR}/private"
