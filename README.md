@@ -47,14 +47,25 @@ O fluxo novo evita `virtualenvwrapper`/`mkvirtualenv` e volta para o padrão do 
 venv-create
 venv-on
 venv-off
+venv-global-create
+venv-global-sync
+venv-global-on
 ```
 
 Por padrão, os helpers trabalham com `.venv` no diretório atual.
 Ao entrar em um diretório que tenha `.venv` (ou em um subdiretório dele), o ambiente é ativado automaticamente.
-Ao sair dele, o ambiente autoativado é desativado.
+Se não houver `.venv` local, o fallback é o virtualenv global em `~/.venv`.
+Os pacotes desse virtualenv global são definidos em [requirements.txt](/Users/nedimar.turatti/Sources/Personal/workstation/requirements.txt).
 
 Se quiser desligar esse comportamento:
 
 ```zsh
 export WORKSTATION_AUTO_VENV=0
+```
+
+Para criar ou sincronizar o virtualenv global:
+
+```zsh
+venv-global-create
+venv-global-sync
 ```

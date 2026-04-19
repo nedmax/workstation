@@ -1,0 +1,12 @@
+# Pacotes instalados no virtualenv global do workstation (`~/.venv` por padrão).
+# Mantenha aqui apenas ferramentas Python de uso global desta máquina.
+
+# REPL melhor para debugging e exploração rápida.
+ipython==9.0.2
+
+# Ferramentas internas usadas no contexto Globo.
+functions-tools==0.21.0
+
+# Utilitário que já aparece em scripts soltos do seu ambiente.
+geoip2==5.2.0
+requests

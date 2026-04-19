@@ -1,5 +1,7 @@
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 export WORKSTATION_AUTO_VENV="${WORKSTATION_AUTO_VENV:-1}"
+export WORKSTATION_GLOBAL_VENV="${WORKSTATION_GLOBAL_VENV:-$HOME/.venv}"
+export WORKSTATION_GLOBAL_VENV_REQUIREMENTS="${WORKSTATION_GLOBAL_VENV_REQUIREMENTS:-$WORKSTATION_HOME/requirements.txt}"
 
 _workstation_find_venv() {
   local search_dir="${PWD:A}"
@@ -21,12 +23,29 @@ _workstation_find_venv() {
   return 1
 }
 
+_workstation_default_venv() {
+  local local_venv=""
+
+  local_venv="$(_workstation_find_venv 2>/dev/null || true)"
+  if [[ -n "$local_venv" ]]; then
+    print -r -- "$local_venv"
+    return 0
+  fi
+
+  if [[ -r "$WORKSTATION_GLOBAL_VENV/bin/activate" ]]; then
+    print -r -- "$WORKSTATION_GLOBAL_VENV"
+    return 0
+  fi
+
+  return 1
+}
+
 _workstation_auto_venv() {
   local detected_venv=""
 
   [[ "$WORKSTATION_AUTO_VENV" == "1" ]] || return 0
 
-  detected_venv="$(_workstation_find_venv 2>/dev/null || true)"
+  detected_venv="$(_workstation_default_venv 2>/dev/null || true)"
 
   if [[ -n "$VIRTUAL_ENV" && "$WORKSTATION_AUTO_VENV_MANAGED" != "1" ]]; then
     return 0
@@ -71,6 +90,38 @@ venv-on() {
   }
 
   source "$activate_script"
+}
+
+venv-global-create() {
+  local python_bin="${1:-python3}"
+
+  command -v "$python_bin" >/dev/null 2>&1 || {
+    echo "Python não encontrado: $python_bin" >&2
+    return 1
+  }
+
+  "$python_bin" -m venv "$WORKSTATION_GLOBAL_VENV" || return 1
+  venv-global-sync
+  venv-global-on
+}
+
+venv-global-sync() {
+  local pip_bin="$WORKSTATION_GLOBAL_VENV/bin/pip"
+
+  [[ -x "$pip_bin" ]] || {
+    echo "Virtualenv global não encontrado em ${WORKSTATION_GLOBAL_VENV}" >&2
+    return 1
+  }
+
+  "$pip_bin" install --upgrade pip
+
+  if [[ -f "$WORKSTATION_GLOBAL_VENV_REQUIREMENTS" ]]; then
+    "$pip_bin" install -r "$WORKSTATION_GLOBAL_VENV_REQUIREMENTS"
+  fi
+}
+
+venv-global-on() {
+  venv-on "$WORKSTATION_GLOBAL_VENV"
 }
 
 venv-off() {
