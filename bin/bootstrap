@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+brewfile="$repo_root/Brewfile"
+oh_my_zsh_dir="${ZSH:-$HOME/.oh-my-zsh}"
+oh_my_zsh_custom="${ZSH_CUSTOM:-$oh_my_zsh_dir/custom}"
+kubetail_dir="$oh_my_zsh_custom/plugins/kubetail"
+
+has_cmd() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+install_homebrew() {
+  if has_cmd brew; then
+    return 0
+  fi
+
+  echo "Installing Homebrew..."
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+}
+
+install_brew_bundle() {
+  echo "Installing Brewfile dependencies..."
+  brew bundle --file "$brewfile"
+}
+
+install_oh_my_zsh() {
+  if [[ -d "$oh_my_zsh_dir" ]]; then
+    return 0
+  fi
+
+  echo "Installing oh-my-zsh..."
+  RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c \
+    "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+}
+
+install_kubetail_plugin() {
+  mkdir -p "$oh_my_zsh_custom/plugins"
+
+  if [[ -d "$kubetail_dir/.git" ]]; then
+    echo "Updating kubetail plugin..."
+    git -C "$kubetail_dir" pull --ff-only
+    return 0
+  fi
+
+  if [[ -d "$kubetail_dir" ]]; then
+    echo "kubetail plugin already exists at $kubetail_dir"
+    return 0
+  fi
+
+  echo "Installing kubetail plugin..."
+  git clone https://github.com/johanhaleby/kubetail.git "$kubetail_dir"
+}
+
+mkdir -p "$repo_root/zsh/env/private"
+
+install_homebrew
+eval "$(brew shellenv)"
+install_brew_bundle
+install_oh_my_zsh
+install_kubetail_plugin
+
+echo
+echo "Bootstrap complete."
+echo "Installed or updated:"
+echo "  - Homebrew dependencies from Brewfile"
+echo "  - oh-my-zsh"
+echo "  - kubetail plugin"
+echo
+echo "Manual or existing integrations kept outside bootstrap:"
+echo "  - Flutter checkout in \$HOME/Sources/OpenSource/flutter"
+echo "  - Postgres.app"
+echo "  - iTerm2 shell integration"
+echo "  - OpenClaw completion"
+echo "Next steps:"
+echo "  1. ./bin/import-current-envs"
+echo "  2. ./bin/install"
+echo "  3. exec zsh -l"

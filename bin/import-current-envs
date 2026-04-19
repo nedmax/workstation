@@ -13,10 +13,10 @@ if [[ ! -f "$source_file" ]]; then
   exit 1
 fi
 
-awk '
+awk -v source_file="$source_file" '
   BEGIN {
     print "# Imported from " source_file
-    print "# Review and split this into shared/projects over time."
+    print "# Review and split this into topic files under zsh/env/private over time."
     print ""
   }
   /^export[[:space:]]+/ {
@@ -26,7 +26,7 @@ awk '
     if ($0 ~ /^export VIRTUALENVWRAPPER_/) next
     print
   }
-' source_file="$source_file" "$source_file" > "$target_file"
+' "$source_file" > "$target_file"
 
 export_count="$(grep -c '^export ' "$target_file" || true)"
 printf 'Imported %s export(s) into %s\n' "$export_count" "$target_file"

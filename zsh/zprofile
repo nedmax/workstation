@@ -4,4 +4,13 @@ elif command -v brew >/dev/null 2>&1; then
   eval "$(brew shellenv)"
 fi
 
-[[ -r "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
+for gcloud_path in \
+  "$HOME/google-cloud-sdk/path.zsh.inc" \
+  "/opt/homebrew/share/google-cloud-sdk/path.zsh.inc" \
+  "/usr/local/share/google-cloud-sdk/path.zsh.inc"
+do
+  if [[ -r "$gcloud_path" ]]; then
+    source "$gcloud_path"
+    break
+  fi
+done
