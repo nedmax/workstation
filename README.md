@@ -35,9 +35,39 @@ Ele salva em `zsh/env/private/00-imported-from-home.zsh`, para o privado sobresc
 - `oh-my-zsh`
 - plugin custom `kubetail`
 - fórmulas/casks do [Brewfile](/Users/nedimar.turatti/Sources/Personal/workstation/Brewfile)
+- release nativa mais recente do `ai-memory` para macOS, com checksum verificado
 
 Algumas integrações continuam fora do bootstrap por dependerem de instalação manual ou escolha de ferramenta:
 Flutter em checkout local, `Postgres.app`, integração do iTerm2 e completion do OpenClaw.
+
+## ai-memory
+
+O bootstrap instala o binário nativo do [ai-memory](https://github.com/akitaonrails/ai-memory) em `~/Applications/ai-memory` e cria `~/.local/bin/ai-memory`. O instalador detecta Apple Silicon ou Intel, baixa a release estável mais recente e valida o arquivo com o SHA-256 publicado pelo projeto.
+
+Para instalar ou atualizar apenas o `ai-memory`:
+
+```zsh
+./bin/install-ai-memory
+ai-memory --version
+```
+
+Os dados e a configuração ficam fora do diretório da aplicação, em `~/Library/Application Support/ai-memory`, e não são sobrescritos por atualizações.
+
+Depois da primeira instalação, inicialize o armazenamento e mantenha o servidor rodando antes de configurar os clientes:
+
+```zsh
+ai-memory init
+ai-memory serve --transport http --bind 127.0.0.1:49374
+```
+
+Em outro terminal, registre MCP e hooks para cada agente utilizado. Por exemplo, para OpenCode:
+
+```zsh
+ai-memory install-mcp --client opencode --apply
+ai-memory install-hooks --agent opencode --apply
+```
+
+Após uma atualização, execute novamente `install-hooks` para atualizar os hooks gerenciados do agente.
 
 ## Python
 

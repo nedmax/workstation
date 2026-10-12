@@ -53,6 +53,10 @@ install_kubetail_plugin() {
   git clone https://github.com/johanhaleby/kubetail.git "$kubetail_dir"
 }
 
+install_ai_memory() {
+  "$repo_root/bin/install-ai-memory"
+}
+
 mkdir -p "$repo_root/zsh/env/private"
 
 install_homebrew
@@ -60,6 +64,7 @@ eval "$(brew shellenv)"
 install_brew_bundle
 install_oh_my_zsh
 install_kubetail_plugin
+install_ai_memory
 
 echo
 echo "Bootstrap complete."
@@ -67,6 +72,7 @@ echo "Installed or updated:"
 echo "  - Homebrew dependencies from Brewfile"
 echo "  - oh-my-zsh"
 echo "  - kubetail plugin"
+echo "  - ai-memory"
 echo
 echo "Manual or existing integrations kept outside bootstrap:"
 echo "  - Flutter checkout in \$HOME/Sources/OpenSource/flutter"
